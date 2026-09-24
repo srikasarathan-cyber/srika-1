@@ -1,0 +1,56 @@
+# ── Python ──────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+*.so
+
+# ── Virtual environments ────────────────────────────────────
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# ── ML Model artefacts (large binary files) ─────────────────
+model/random_forest.pkl
+model/encoders.pkl
+model/target_encoder.pkl
+model/feature_cols.pkl
+# Keep metrics.json (small, human-readable)
+# !model/metrics.json
+
+# ── Dataset (large files — store via Git LFS or separately) ─
+dataset/*.csv
+
+# ── Generated charts ────────────────────────────────────────
+static/confusion_matrix.png
+static/feature_importance.png
+
+# ── Flask / development ──────────────────────────────────────
+instance/
+.webassets-cache
+*.log
+
+# ── Jupyter Notebooks ────────────────────────────────────────
+.ipynb_checkpoints
+*.ipynb
+
+# ── OS files ─────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── IDEs & editors ───────────────────────────────────────────
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# ── Distribution / packaging ────────────────────────────────
+dist/
+build/
+*.egg-info/

@@ -1,0 +1,23 @@
+{
+  "accuracy": 95.43,
+  "precision": 95.48,
+  "recall": 95.43,
+  "f1_score": 95.44,
+  "train_size": 103904,
+  "test_size": 25976,
+  "n_features": 21,
+  "target_classes": [
+    "dissatisfied",
+    "satisfied"
+  ],
+  "confusion_matrix": [
+    [
+      11352,
+      407
+    ],
+    [
+      779,
+      13438
+    ]
+  ]
+}

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Airline Satisfaction Predictor | ML Project</title>
+  <meta name="description" content="Predict airline customer satisfaction using a Random Forest ML model trained on real passenger data." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+
+  <!-- ===== HERO HEADER ===== -->
+  <header class="hero">
+    <div class="hero-glow"></div>
+    <div class="hero-content">
+      <div class="badge">✈️ Machine Learning Project</div>
+      <h1>Airline Customer<br/><span class="gradient-text">Satisfaction Predictor</span></h1>
+      <p class="hero-desc">
+        A Random Forest classifier trained on <strong>129,880 passenger records</strong> to predict whether a customer will be
+        <em>satisfied</em> or <em>dissatisfied</em> with their flight experience.
+      </p>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- ===== METRIC CARDS ===== -->
+    <section class="metrics-section">
+      <h2 class="section-title">Model Performance</h2>
+      <div class="metrics-grid">
+        <div class="metric-card" data-val="{{ metrics.accuracy }}">
+          <div class="metric-icon">🎯</div>
+          <div class="metric-value" id="acc-val">0%</div>
+          <div class="metric-label">Accuracy</div>
+          <div class="metric-bar"><div class="metric-fill" style="width:0%" data-target="{{ metrics.accuracy }}"></div></div>
+        </div>
+        <div class="metric-card" data-val="{{ metrics.precision }}">
+          <div class="metric-icon">🔍</div>
+          <div class="metric-value" id="prec-val">0%</div>
+          <div class="metric-label">Precision</div>
+          <div class="metric-bar"><div class="metric-fill" style="width:0%" data-target="{{ metrics.precision }}"></div></div>
+        </div>
+        <div class="metric-card" data-val="{{ metrics.recall }}">
+          <div class="metric-icon">📡</div>
+          <div class="metric-value" id="rec-val">0%</div>
+          <div class="metric-label">Recall</div>
+          <div class="metric-bar"><div class="metric-fill" style="width:0%" data-target="{{ metrics.recall }}"></div></div>
+        </div>
+        <div class="metric-card" data-val="{{ metrics.f1_score }}">
+          <div class="metric-icon">⚡</div>
+          <div class="metric-value" id="f1-val">0%</div>
+          <div class="metric-label">F1-Score</div>
+          <div class="metric-bar"><div class="metric-fill" style="width:0%" data-target="{{ metrics.f1_score }}"></div></div>
+        </div>
+      </div>
+      <div class="dataset-info">
+        <span>🗃️ Dataset: <strong>{{ metrics.train_size + metrics.test_size }} records</strong></span>
+        <span>🔀 Train / Test split: <strong>80% / 20%</strong></span>
+        <span>🌲 Algorithm: <strong>Random Forest</strong></span>
+        <span>📊 Features: <strong>{{ metrics.n_features }}</strong></span>
+      </div>
+    </section>
+
+    <!-- ===== CHARTS ===== -->
+    <section class="charts-section">
+      <div class="chart-card">
+        <h3>Confusion Matrix</h3>
+        <img src="{{ url_for('static', filename='confusion_matrix.png') }}" alt="Confusion Matrix" />
+      </div>
+      <div class="chart-card">
+        <h3>Feature Importances</h3>
+        <img src="{{ url_for('static', filename='feature_importance.png') }}" alt="Feature Importances" />
+      </div>
+    </section>
+
+    <!-- ===== PREDICTION FORM ===== -->
+    <section class="predict-section">
+      <h2 class="section-title">Make a Prediction</h2>
+      <p class="section-sub">Fill in the passenger details below and click <strong>Predict Satisfaction</strong>.</p>
+
+      <form id="predict-form" class="predict-form">
+
+        <!-- Categorical fields -->
+        <div class="form-group">
+          <label for="Customer Type">Customer Type</label>
+          <div class="select-wrapper">
+            <select id="Customer Type" name="Customer Type" required>
+              {% for opt in cat_options['Customer Type'] %}
+              <option value="{{ opt }}">{{ opt }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="Type of Travel">Type of Travel</label>
+          <div class="select-wrapper">
+            <select id="Type of Travel" name="Type of Travel" required>
+              {% for opt in cat_options['Type of Travel'] %}
+              <option value="{{ opt }}">{{ opt }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="Class">Travel Class</label>
+          <div class="select-wrapper">
+            <select id="Class" name="Class" required>
+              {% for opt in cat_options['Class'] %}
+              <option value="{{ opt }}">{{ opt }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <!-- Numerical fields -->
+        <div class="form-group">
+          <label for="Age">Age</label>
+          <input type="number" id="Age" name="Age" min="1" max="120" value="35" required />
+        </div>
+
+        <div class="form-group">
+          <label for="Flight Distance">Flight Distance (km)</label>
+          <input type="number" id="Flight Distance" name="Flight Distance" min="1" max="10000" value="1200" required />
+        </div>
+
+        <!-- Rating fields (0-5) -->
+        {% set rating_fields = [
+          ('Seat comfort','Seat Comfort'),
+          ('Departure/Arrival time convenient','Departure/Arrival Time'),
+          ('Food and drink','Food & Drink'),
+          ('Gate location','Gate Location'),
+          ('Inflight wifi service','Inflight Wifi'),
+          ('Inflight entertainment','Inflight Entertainment'),
+          ('Online support','Online Support'),
+          ('Ease of Online booking','Online Booking'),
+          ('On-board service','On-board Service'),
+          ('Leg room service','Leg Room Service'),
+          ('Baggage handling','Baggage Handling'),
+          ('Checkin service','Check-in Service'),
+          ('Cleanliness','Cleanliness'),
+          ('Online boarding','Online Boarding')
+        ] %}
+
+        {% for field_id, label in rating_fields %}
+        <div class="form-group rating-group">
+          <label for="{{ field_id }}">{{ label }} <span class="rating-hint">(0–5)</span></label>
+          <div class="star-rating" data-field="{{ field_id }}">
+            {% for i in range(6) %}
+            <button type="button" class="star-btn {% if i == 3 %}active{% endif %}" data-val="{{ i }}">{{ i }}</button>
+            {% endfor %}
+          </div>
+          <input type="hidden" id="{{ field_id }}" name="{{ field_id }}" value="3" />
+        </div>
+        {% endfor %}
+
+        <!-- Delay fields -->
+        <div class="form-group">
+          <label for="Departure Delay in Minutes">Departure Delay (minutes)</label>
+          <input type="number" id="Departure Delay in Minutes" name="Departure Delay in Minutes" min="0" max="1500" value="0" required />
+        </div>
+
+        <div class="form-group">
+          <label for="Arrival Delay in Minutes">Arrival Delay (minutes)</label>
+          <input type="number" id="Arrival Delay in Minutes" name="Arrival Delay in Minutes" min="0" max="1500" value="0" required />
+        </div>
+
+        <button type="submit" id="predict-btn" class="predict-btn">
+          <span id="btn-text">✈️ Predict Satisfaction</span>
+          <span id="btn-loader" class="hidden">⏳ Predicting…</span>
+        </button>
+      </form>
+
+      <!-- RESULT PANEL -->
+      <div id="result-panel" class="result-panel hidden">
+        <div class="result-inner">
+          <div id="result-icon" class="result-icon"></div>
+          <div id="result-label" class="result-label"></div>
+          <div id="result-confidence" class="result-confidence"></div>
+          <div class="prob-bars" id="prob-bars"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <p>Built with ❤️ using <strong>Random Forest</strong> · scikit-learn · Flask · Python</p>
+    <p>College ML Project — Airline Customer Satisfaction Prediction</p>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
